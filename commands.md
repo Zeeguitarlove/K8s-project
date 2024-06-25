@@ -11,19 +11,19 @@ AWS CLI – A command line tool for working with AWS services, including Amazon 
 ###### Creating an EKS Cluster with Fargate ###### 
 
 eksctl create cluster \
-  --name demo-cluster \
+  --name <your-cluster-name> \
   --region us-east-1 \
   --zones "us-east-1a,us-east-1b,us-east-1c,us-east-1d,us-east-1f" \
   --fargate
 
 ###### Updating Kubeconfig for EKS Cluster ######
 
-aws eks update-kubeconfig --name demo-cluster --region us-east-1
+aws eks update-kubeconfig --name <your-cluster-name> --region us-east-1
 
 ###### Creating a Fargate Profile for the Cluster ######
 
 eksctl create fargateprofile \
-    --cluster demo-cluster \
+    --cluster <your-cluster-name> \
     --region us-east-1 \
     --name alb-sample-app \
     --namespace game-2048
@@ -34,7 +34,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-bala
 
 ###### Associating IAM OIDC Provider with the Cluster ######
 
-eksctl utils associate-iam-oidc-provider --cluster demo-cluster --approve
+eksctl utils associate-iam-oidc-provider --cluster <your-cluster-name> --approve
 
 we need to have IAM OIDC provider because ALB controller that running need to talk to AWS resource.
 For it to talk it need to have IAM integrated
@@ -54,7 +54,7 @@ aws iam create-policy \
 ###### Creating IAM Service Account for AWS Load Balancer Controller ######
 
 eksctl create iamserviceaccount \
---cluster=demo-cluster \
+--cluster=<your-cluster-name> \
 --namespace=kube-system \
 --name=aws-load-balancer-controller \
 --role-name AmazonEKSLoadBalancerControllerRole \
@@ -72,11 +72,11 @@ helm repo update eks
 ###### Installing AWS Load Balancer Controller via Helm ######
 
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system \
-  --set clusterName=demo-cluster \
+  --set clusterName=<your-cluster-name> \
   --set serviceAccount.create=false \
   --set serviceAccount.name=aws-load-balancer-controller \
   --set region=us-east-1 \
-  --set vpcId=vpc-0c77dfe245a03a9a3
+  --set vpcId=<your-VPC-ID>
 
 ###### Check the Deployments ######
 kubectl get deployment -n kube-system aws-load-balancer-controller
